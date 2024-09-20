@@ -16,9 +16,10 @@
 1. **克隆或下载代码**：
    ```bash
    git clone https://github.com/JunKai-cc/brgzSH.git
-   cd /brgzSH/A
+   cd /root/brgzSH/A
    
-   chmod +x brotli.sh
+   chmod +x brgzSH.sh
+   chmod +x brotli
 
    # 单文件压缩
    ./brgzSH.sh /path/to/your/directory/c.js
