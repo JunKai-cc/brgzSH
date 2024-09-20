@@ -40,15 +40,34 @@ GZIP_LEVEL=11
 # 获取 CPU 核心数量
 CPUS=$(grep -c "processor" /proc/cpuinfo)
 
+# 检测并安装 pigz
+if [ ! -f /usr/bin/pigz ]; then
+  echo
+  echo "/usr/bin/pigz 未找到"
+  echo "正在从 YUM 仓库安装 pigz..."
+  echo
+  sleep 3
+  yum -q -y install pigz
+  
+  # 检查 pigz 是否安装成功
+  if [ ! -f /usr/bin/pigz ]; then
+    echo "/usr/bin/pigz 安装失败，依然未找到"
+    echo "将使用 gzip 作为替代"
+    GZIP_PIGZ='n'
+    GZIP_BIN='/usr/bin/gzip'
+    GZIP_BINOPT="-${GZIP_LEVEL}"
+  fi
+fi
+
 # 根据 CPU 核心数设置 gzip 使用 pigz 或 gzip
-if [ "$CPUS" -lt 2 ]; then
-  GZIP_PIGZ='n'
-  GZIP_BIN='/usr/bin/gzip'
-  GZIP_BINOPT="-${GZIP_LEVEL}"
-else
+if [ -f /usr/bin/pigz ] && [ "$CPUS" -ge 2 ]; then
   GZIP_PIGZ='y'
   GZIP_BIN='/usr/bin/pigz'
   GZIP_BINOPT="-${GZIP_LEVEL}k -f"
+else
+  GZIP_PIGZ='n'
+  GZIP_BIN='/usr/bin/gzip'
+  GZIP_BINOPT="-${GZIP_LEVEL}"
 fi
 
 # 如果日志目录不存在，则创建
